@@ -33,7 +33,6 @@
 git clone https://github.com/lakekeeper/lakekeeper.git
 
 # 2. Переход в минимальный демо-пример (в нём уже есть Lakekeeper, PostgreSQL,
-#    S3-совместимое хранилище silo, а также StarRocks и Jupyter как демо-движки)
 cd lakekeeper/examples/minimal
 
 # 3. Запуск всего стека в фоне
