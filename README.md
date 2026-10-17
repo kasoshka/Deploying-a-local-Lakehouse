@@ -50,7 +50,7 @@ docker stats --no-stream
 Какие таблицы и колонки TPC-H реально нужны твоему запросу.
 
 | Таблица TPC-H | Нужные колонки | Что запрос с ними делает (фильтр / джойн / агрегат / вывод) |
-| part | partkey, brand, type, size |Фильтрует по brand <> 'Brand#45', type NOT LIKE 'MEDIUM POLISHED%', size IN (...). Джойнится с partsupp.|
+| part | partkey, brand, type, size | Фильтрует по brand <> 'Brand#45', type NOT LIKE 'MEDIUM POLISHED%', size IN (...). Джойнится с partsupp.|
 | partsupp | partkey, suppkey | Джойнится с part по partkey. Из него берется suppkey для подсчета количества уникальных поставщиков. |
 | supplier | suppkey, comment | Используется в подзапросе (анти-джойн): исключает поставщиков, у которых comment LIKE '%Customer%Complaints%'. |
 
