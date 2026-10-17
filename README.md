@@ -105,12 +105,6 @@ docker stats --no-stream
 
 ### 6.2. Подключить инструмент к lakehouse
 
-Подними в Docker **один** инструмент, который умеет работать с lakehouse, и покажи его взаимодействие с данными на **Bronze**-слое. Выбери из:
-
-- **BI** — например Superset / Metabase;
-- **движок** — например Doris / StarRocks / Spark (и обоснуй, какой лучше для твоей задачи);
-- **дата-каталог**.
-
 | Инструмент | Почему выбрал именно его |
 |---|---|
 | StarRocks | Решил использовать StarRocks, потому что он уже был запущен в нашем Docker-окружении, и не пришлось ставить ничего дополнительно. Это мощный аналитический движок, который умеет напрямую подключаться к Iceberg через Lakekeeper. Мне нужно было просто показать, что данные из Bronze доступны другим инструментам, и StarRocks с этим отлично справился. |
@@ -119,7 +113,7 @@ docker stats --no-stream
 
 1. Подключился к StarRocks через MySQL-клиент: docker exec -it minimal-starrocks-1 mysql -P 9030 -h 127.0.0.1 -u root.
 
-2. Выполнил CREATE EXTERNAL CATALOG lakekeeper_iceberg с указанием REST URI Lakekeeper (http://lakekeeper:8181/catalog). Применил параметр aws.s3.enable_path_style_access = true, чтобы избежать ошибок Docker DNS при обращении к S3 (Silo).
+2. Выполнил CREATE EXTERNAL CATALOG lakekeeper_iceberg с указанием REST URI Lakekeeper. Применил параметр aws.s3.enable_path_style_access = true, чтобы избежать ошибок Docker DNS при обращении к S3 (Silo).
 
 3. Переключился на каталог (SET CATALOG lakekeeper_iceberg;), выполнил SHOW DATABASES; — увидел схемы bronze, silver, gold.
 
@@ -127,4 +121,8 @@ docker stats --no-stream
 
 ## 7. Выводы
 
-Кратко, 3–5 предложений: что понял про медальон, хранение и сжатие, чем твой выбор лучше альтернатив.
+Я понял, что медальон (Bronze → Silver → Gold) — это удобный способ навести порядок в данных. В слое Silver мы отфильтровываем лишнее, и таблица `partsupp` уменьшилась с 28 МБ до 0.36 МБ, так как мы оставили только нужные колонки и строки.
+
+Lakehouse на базе Iceberg — это отличная альтернатива обычной БД: данные лежат в дешевом S3, но мы можем делать с ними транзакции, откаты и запросы на SQL.
+
+Тесты сжатия показали, что GZIP на этих данных дал меньший размер, чем ZSTD. А еще я убедился, что к одному Lakehouse можно подключить разные движки — у меня данные из Bronze успешно прочитали и Trino, и StarRocks.
