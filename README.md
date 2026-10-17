@@ -113,13 +113,17 @@ docker stats --no-stream
 
 | Инструмент | Почему выбрал именно его |
 |---|---|
-| Trino Web UI (http://localhost:9999) | Уже развернут вместе с движком, не требует установки тяжелых BI-систем. Позволяет визуально исследовать данные Bronze, смотреть статистику и планы запросов. Для проверки Q16 этого достаточно. |
+| StarRocks | Решил использовать StarRocks, потому что он уже был запущен в нашем Docker-окружении, и не пришлось ставить ничего дополнительно. Это мощный аналитический движок, который умеет напрямую подключаться к Iceberg через Lakekeeper. Мне нужно было просто показать, что данные из Bronze доступны другим инструментам, и StarRocks с этим отлично справился. |
 
-Приложи:
-- **скрипты развертывания** (`docker run` / `docker-compose.yml`);
-- **свои действия** в UI или консоли — как подключился к lakehouse и увидел данные Bronze.
+Действия в консоли
 
+1. Подключился к StarRocks через MySQL-клиент: docker exec -it minimal-starrocks-1 mysql -P 9030 -h 127.0.0.1 -u root.
 
+2. Выполнил CREATE EXTERNAL CATALOG lakekeeper_iceberg с указанием REST URI Lakekeeper (http://lakekeeper:8181/catalog). Применил параметр aws.s3.enable_path_style_access = true, чтобы избежать ошибок Docker DNS при обращении к S3 (Silo).
+
+3. Переключился на каталог (SET CATALOG lakekeeper_iceberg;), выполнил SHOW DATABASES; — увидел схемы bronze, silver, gold.
+
+4. Выполнил SELECT count(*) FROM bronze.part; (получил 200 000) и SELECT * FROM bronze.part LIMIT 5;. Данные успешно прочитаны.
 
 ## 7. Выводы
 
